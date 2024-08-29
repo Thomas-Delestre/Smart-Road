@@ -22,9 +22,11 @@ pub fn main() {
 
     // Load texture (image file)
     let texture_creator = canvas.texture_creator();
-    let texture = texture_creator.load_texture("/home/student/Documents/Zone01/Rust/projects/smart-road-perso/new-road.jpg").unwrap();
+    let texture = texture_creator.load_texture("/home/student/Documents/Zone01/Rust/projects/smart-road/new-road.jpg").unwrap();
 
     let mut event_pump = sdl_context.event_pump().unwrap();
+
+    let mut voitures_sprite = Sprite::new("./assets/car.png", 2, 3);
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -33,18 +35,12 @@ pub fn main() {
                 _ => {}
             }
         }
-
         // Clear the canvas
-        canvas.set_draw_color(Color::RGB(0, 0, 0)); // Black background (optional)
         canvas.clear();
-
         // Copy texture to the canvas
         canvas.copy(&texture, None, None).unwrap();  // None means the whole texture is drawn
-
         // Call the mapping function to draw lines on top of the background
         mapping::display(&mut canvas);
-
-        // Present the canvas
         canvas.present();
 
         // Sleep to maintain ~60 FPS
