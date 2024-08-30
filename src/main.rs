@@ -1,49 +1,103 @@
-extern crate sdl2;
-mod mapping;
+use sdl2::{pixels::Color, render::TextureCreator};
+use sdl2::rect::Rect;
 use sdl2::event::Event;
-use sdl2::image::{LoadTexture, InitFlag};
-use sdl2::pixels::Color;
+use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
-pub fn main() {
-    // Initialize SDL2 system
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
-    
-    // Initialize SDL2 image with the necessary formats (e.g., PNG, JPG)
-    let _image_context = sdl2::image::init(InitFlag::PNG | InitFlag::JPG).unwrap();
 
-    // Set up window and canvas
-    let window = video_subsystem.window("rust-sdl2 demo", 800, 800)
+
+mod vehicules;
+mod sprites;
+mod intersection;
+
+use intersection::Intersection;
+use sprites::Sprite;
+
+use vehicules::{Vehicule, Start, Direction};
+
+fn main() -> Result<(), String> {
+    const BG_SOURCE: &str = "./assets/road.jpg"; // Fichier source du background
+
+
+
+    let sdl_context = sdl2::init()?;
+    let video_subsystem = sdl_context.video()?;
+    let mut window = video_subsystem.window("Smart Intersection", 800, 800)
         .position_centered()
         .build()
-        .unwrap();
-    let mut canvas = window.into_canvas().build().unwrap();
+        .map_err(|e| e.to_string())?;
+    let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+    let mut event_pump = sdl_context.event_pump()?;
 
-    // Load texture (image file)
+    // Set a black background
+    canvas.set_draw_color(Color::RGB(0, 0, 0));
+    canvas.clear();
+    canvas.present();
     let texture_creator = canvas.texture_creator();
-    let texture = texture_creator.load_texture("/home/student/Documents/Zone01/Rust/projects/smart-road/new-road.jpg").unwrap();
 
-    let mut event_pump = sdl_context.event_pump().unwrap();
-
+    let mut intersection_sprite = Sprite::new(BG_SOURCE, 1, 1);
+    intersection_sprite.load(&texture_creator)?;
     let mut voitures_sprite = Sprite::new("./assets/car.png", 2, 3);
-
+    voitures_sprite.load(&texture_creator)?;
+    
+    let mut intersection = Intersection::new(intersection_sprite);
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => {
+                    break 'running; // Quitter la boucle lorsque l'événement de fermeture est reçu
+                }
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                    break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
+                }
+                Event::KeyDown { keycode: Some(keycode), .. } => {
+                    println!("Key down: {:?}", keycode); // Affiche la touche enfoncée
+                    match keycode {
+                        Keycode::Up => {
+                            intersection.add_car((800, 800), &voitures_sprite, Start::South);
+                            println!("Moving Up");
+                        }
+                        Keycode::Down => {
+                            intersection.add_car((800, 800), &voitures_sprite, Start::North);
+                            println!("Moving Down");
+                        }
+                        Keycode::Left => {
+                            intersection.add_car((800, 800), &voitures_sprite, Start::East);
+                            println!("Moving Left");
+                        }
+                        Keycode::Right => {
+                            intersection.add_car((800, 800), &voitures_sprite, Start::West);
+                            println!("Moving Right");
+                        }
+                        Keycode::R => {
+                            println!("R for RANDOM");
+                        }
+                        _ => {}
+                    }
+                }
+                Event::KeyUp { keycode: Some(keycode), .. } => {
+                    println!("Key up: {:?}", keycode); // Affiche la touche relâchée
+                }
                 _ => {}
             }
         }
-        // Clear the canvas
+        // Update logic here
+
+        intersection.step();
+        
+        // Draw vehicles here
+        canvas.set_draw_color(Color::RGB(255, 0, 0));
+       
         canvas.clear();
-        // Copy texture to the canvas
-        canvas.copy(&texture, None, None).unwrap();  // None means the whole texture is drawn
-        // Call the mapping function to draw lines on top of the background
-        mapping::display(&mut canvas);
+        
+        // Draw vehicles
+        
+        intersection.draw(&mut canvas)?;
+        
         canvas.present();
 
-        // Sleep to maintain ~60 FPS
+        // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
+    Ok(())
 }
