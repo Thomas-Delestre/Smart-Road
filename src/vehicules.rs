@@ -155,63 +155,63 @@ pub fn generate_path(start: Start, dir: Direction, window_size: (u32, u32), vehi
                     Point::new(window_size.0 as i32, (window_size.1 / 2 + vehicule_height) as i32),
                 ]),
                 Direction::Right => Path::new(vec![
-                    Point::new(0, (window_size.1 / 2 + vehicule_height * 3) as i32),
-                    Point::new((window_size.0 + vehicule_height) as i32, (window_size.1 / 2 + vehicule_height * 3) as i32),
-                    Point::new((window_size.0 + vehicule_height) as i32, window_size.1 as i32),
+                    Point::new(0, (window_size.1 / 2 + 80) as i32),
+                    Point::new((window_size.0 / 3)  as i32, (window_size.1 / 2 + 80) as i32),
+                    Point::new((window_size.0 / 3 + 7) as i32, (window_size.1) as i32),
                 ])
             }
            },
            Start::South => {
             match dir {
                 Direction::Left => Path::new(vec![
-                    Point::new((window_size.0 / 2) as i32, window_size.1 as i32),
-                    Point::new((window_size.0 / 2) as i32, (window_size.1 / 2 - vehicule_height) as i32),
-                    Point::new(0, (window_size.1 / 2) as i32),
+                    Point::new((window_size.0 / 2 + 7) as i32, window_size.1 as i32),
+                    Point::new((window_size.0 / 2 + 7) as i32, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
+                    Point::new(0, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
                 ]),
                 Direction::Straigth => Path::new(vec![
-                    Point::new((window_size.0 / 2 + vehicule_height) as i32, window_size.1 as i32),
-                    Point::new((window_size.0 / 2 + vehicule_height) as i32, 0),
+                    Point::new((window_size.0 / 2 + vehicule_height + 10) as i32, window_size.1 as i32),
+                    Point::new((window_size.0 / 2 + vehicule_height + 10) as i32, 0),
                 ]),
                 Direction::Right => Path::new(vec![
-                    Point::new((window_size.0 / 2 + vehicule_height * 2) as i32, window_size.1 as i32),
-                    Point::new((window_size.0 / 2 + vehicule_height * 2) as i32, (window_size.1 / 2 + vehicule_height * 2) as i32),
-                    Point::new(window_size.0 as i32, (window_size.1 / 2 + vehicule_height * 2) as i32),
+                    Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, window_size.1 as i32),
+                    Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, (window_size.1 / 2 + vehicule_height + 45) as i32),
+                    Point::new(window_size.0 as i32, (window_size.1 / 2 + vehicule_height + 45) as i32),
                 ])
             }
            },
            Start::East => {
             match dir {
                 Direction::Left => Path::new(vec![
-                    Point::new(window_size.0 as i32, (window_size.1 / 2 - vehicule_height) as i32),
-                    Point::new((window_size.0 / 2 - vehicule_height) as i32, (window_size.1 / 2 - vehicule_height) as i32),
-                    Point::new((window_size.0 / 2 - vehicule_height) as i32, window_size.1 as i32),
+                    Point::new(window_size.0 as i32, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, window_size.1 as i32),
                 ]),
                 Direction::Straigth => Path::new(vec![
-                    Point::new(window_size.0 as i32, (window_size.1 / 2 - vehicule_height * 2) as i32),
-                    Point::new(0 as i32, (window_size.1 / 2 - vehicule_height * 2) as i32),
+                    Point::new(window_size.0 as i32, (window_size.1 / 2 - (vehicule_height + 57)) as i32),
+                    Point::new(0 as i32, (window_size.1 / 2 - (vehicule_height + 57)) as i32),
                 ]),
                 Direction::Right => Path::new(vec![
-                    Point::new(window_size.0 as i32, (window_size.1 / 2 - vehicule_height * 3) as i32),
-                    Point::new((window_size.0 / 2 + vehicule_height * 3) as i32, (window_size.1 / 2 - vehicule_height * 3) as i32),
-                    Point::new((window_size.0 / 2 + vehicule_height * 3) as i32, 0 as i32),
+                    Point::new(window_size.0 as i32, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
+                    Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
+                    Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, 0 as i32),
                 ])
             }
            },
            Start::North => {
             match dir {
                 Direction::Left => Path::new(vec![
-                    Point::new((window_size.0 / 2 - vehicule_height) as i32, 0),
-                    Point::new((window_size.0 / 2 - vehicule_height) as i32, (window_size.1 / 2 + vehicule_height) as i32),
-                    Point::new(0, (window_size.1 / 2 - vehicule_height) as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, 0),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, (window_size.1 / 2) as i32),
+                    Point::new(window_size.0 as i32, (window_size.1 / 2) as i32),
                 ]),
                 Direction::Straigth => Path::new(vec![
-                    Point::new((window_size.0 / 2 - vehicule_height * 2) as i32, 0 as i32),
-                    Point::new((window_size.0 / 2 - vehicule_height * 2) as i32, window_size.1 as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 50)) as i32, 0 as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 50)) as i32, window_size.1 as i32),
                 ]),
                 Direction::Right => Path::new(vec![
-                    Point::new((window_size.0 / 2 - vehicule_height * 3) as i32, 0 as i32),
-                    Point::new((window_size.0 / 2 - vehicule_height * 3) as i32, (window_size.1 / 2 - vehicule_height * 3) as i32),
-                    Point::new(0, (window_size.1 / 2 - vehicule_height * 3) as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 95)) as i32, 0 as i32),
+                    Point::new((window_size.0 / 2 - (vehicule_height + 95)) as i32, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
+                    Point::new(0, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
                 ])
             }
            },
