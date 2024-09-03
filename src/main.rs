@@ -3,22 +3,18 @@ use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
-
-
+use std::time::Instant;
+use rand::Rng;
+use vehicules::{Vehicule, Start, Direction};
+use intersection::Intersection;
+use sprites::Sprite;
 
 mod vehicules;
 mod sprites;
 mod intersection;
 
-use intersection::Intersection;
-use sprites::Sprite;
-
-use vehicules::{Vehicule, Start, Direction};
-
 fn main() -> Result<(), String> {
     const BG_SOURCE: &str = "./assets/road.jpg"; // Fichier source du background
-
-
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -41,6 +37,9 @@ fn main() -> Result<(), String> {
     voitures_sprite.load(&texture_creator)?;
     
     let mut intersection = Intersection::new(intersection_sprite);
+    
+    let mut last_key_event_time = Instant::now();
+    
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -50,33 +49,49 @@ fn main() -> Result<(), String> {
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
                 }
+
                 Event::KeyDown { keycode: Some(keycode), .. } => {
-                    println!("Key down: {:?}", keycode); // Affiche la touche enfoncée
-                    match keycode {
-                        Keycode::Up => {
-                            intersection.add_car((800, 800), &voitures_sprite, Start::South);
-                            println!("Moving Up");
+                    if last_key_event_time.elapsed() >= Duration::from_millis(200) {
+                        last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps
+                        
+                        println!("Key down: {:?}", keycode);
+                        match keycode {
+                            Keycode::Up => {
+                                intersection.add_car((800, 800), &voitures_sprite, Start::South);
+                                println!("Moving Up");
+                            }
+                            Keycode::Down => {
+                                intersection.add_car((800, 800), &voitures_sprite, Start::North);
+                                println!("Moving Down");
+                            }
+                            Keycode::Left => {
+                                intersection.add_car((800, 800), &voitures_sprite, Start::East);
+                                println!("Moving Left");
+                            }
+                            Keycode::Right => {
+                                intersection.add_car((800, 800), &voitures_sprite, Start::West);
+                                println!("Moving Right");
+                            }
+                            Keycode::R => {
+                                println!("R for RANDOM");
+                                // Générer un entier aléatoire entre 0 et 3
+                                let mut rng = rand::thread_rng();
+                                let random_direction = match rng.gen_range(0, 4) {
+                                    0 => Start::South,
+                                    1 => Start::North,
+                                    2 => Start::East,
+                                    _ => Start::West,
+                                };
+
+                                intersection.add_car((800, 800), &voitures_sprite, random_direction);
+                            }
+                            _ => {}
                         }
-                        Keycode::Down => {
-                            intersection.add_car((800, 800), &voitures_sprite, Start::North);
-                            println!("Moving Down");
-                        }
-                        Keycode::Left => {
-                            intersection.add_car((800, 800), &voitures_sprite, Start::East);
-                            println!("Moving Left");
-                        }
-                        Keycode::Right => {
-                            intersection.add_car((800, 800), &voitures_sprite, Start::West);
-                            println!("Moving Right");
-                        }
-                        Keycode::R => {
-                            println!("R for RANDOM");
-                        }
-                        _ => {}
                     }
                 }
                 Event::KeyUp { keycode: Some(keycode), .. } => {
                     println!("Key up: {:?}", keycode); // Affiche la touche relâchée
+                    // println!("List of vehicles in intersection: {:?}", intersection.cars);
                 }
                 _ => {}
             }

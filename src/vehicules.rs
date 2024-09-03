@@ -68,7 +68,7 @@ impl<'a> Vehicule<'a>  {
             x, 
             y,
             sprite,
-            speed,
+            speed : speed/2,
             security_distance,
             path, 
             cross_passed: false,
@@ -80,48 +80,46 @@ impl<'a> Vehicule<'a>  {
     
     pub fn step(&mut self) { // Logique de la voiture frame par frame
      
-            if let Some(target) = self.path.current_target() {
-                // Calculer la direction vers le point de passage suivant
-                let dx = target.x - self.x as i32;
-                let dy = target.y - self.y as i32;
+        if let Some(target) = self.path.current_target() {
+            // Calculer la direction vers le point de passage suivant
+            let dx = target.x - self.x as i32;
+            let dy = target.y - self.y as i32;
 
-                 // Check des directions pour update les angles
-                if dy > 0  {
-                    self.angle = 180.0;
-                }
-                if dy < 0 {
-                    self.angle = 0.0;
-                }
-
-                if dx > 0  {
-                    self.angle = 90.0;
-                }
-                if dx < 0 {
-                    self.angle = -90.0;
-                }
-                // update les derniers pixel avant le points a atteindre
-                if dx.abs() <= self.speed as i32 {
-                    self.x += dx as i64;
-                }
-                if dy.abs() <= self.speed as i32 {
-                    self.y += dy as i64;
-                }
-
-
-                if dx.abs() <= self.speed as i32 && dy.abs() <= self.speed as i32 {
-                    // Si le véhicule a atteint le point cible, avancer au point suivant
-                    self.path.advance();
-                } else {
-                    // Calculer le pas de déplacement vers le point cible
-                    let distance = ((dx * dx + dy * dy) as f64).sqrt();
-                    let step_x = (dx as f64 / distance * self.speed as f64) as i64;
-                    let step_y = (dy as f64 / distance * self.speed as f64) as i64;
-                    
-                    
-                    self.x += step_x;
-                    self.y += step_y;
-                }
+                // Check des directions pour update les angles
+            if dy > 0  {
+                self.angle = 180.0;
             }
+            if dy < 0 {
+                self.angle = 0.0;
+            }
+
+            if dx > 0  {
+                self.angle = 90.0;
+            }
+            if dx < 0 {
+                self.angle = -90.0;
+            }
+            // update les derniers pixel avant le points a atteindre
+            if dx.abs() <= self.speed as i32 {
+                self.x += dx as i64;
+            }
+            if dy.abs() <= self.speed as i32 {
+                self.y += dy as i64;
+            }
+
+            if dx.abs() <= self.speed as i32 && dy.abs() <= self.speed as i32 {
+                // Si le véhicule a atteint le point cible, avancer au point suivant
+                self.path.advance();
+            } else {
+                // Calculer le pas de déplacement vers le point cible
+                let distance = ((dx * dx + dy * dy) as f64).sqrt();
+                let step_x = (dx as f64 / distance * self.speed as f64) as i64;
+                let step_y = (dy as f64 / distance * self.speed as f64) as i64;
+                                    
+                self.x += step_x;
+                self.y += step_y;
+            }
+        }
         
     }
     pub fn draw(&self, canvas: &mut Canvas<Window>, xscale: f32, yscale: f32) -> Result<(), String> { // draw de la voiture 
