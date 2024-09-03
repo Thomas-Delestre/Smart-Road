@@ -45,10 +45,11 @@ impl<'a> Sprite<'a> {
        
         Ok(())
     } 
-
+    
     pub fn get_frame(&self, id: usize) -> Rect {
         self.steps[id]
     }
+    
     pub fn get_frame_size(&self) -> (u32, u32) {
         let size: (u32, u32) = {  
             let query = self.loaded.as_ref().unwrap().query();

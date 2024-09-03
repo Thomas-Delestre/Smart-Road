@@ -100,20 +100,13 @@ fn main() -> Result<(), String> {
             }
         }
         // Update logic here
-
         intersection.step();
-        
         // Draw vehicles here
         canvas.set_draw_color(Color::RGB(255, 0, 0));
-       
-        canvas.clear();
-        
-        // Draw vehicles
-        
-        intersection.draw(&mut canvas)?;
-        
+        canvas.clear(); 
+        // Draw vehicles   
+        intersection.draw(&mut canvas)?; 
         canvas.present();
-
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }

@@ -5,8 +5,6 @@ use sdl2::rect::{Point, Rect};
 
 use crate::sprites::Sprite;
 
-
-
 pub enum Start {
     North,
     South,
@@ -19,7 +17,6 @@ pub enum Direction {
     Left,
     Right,
 }
-
 
 pub struct Path {
     pub steps: Vec<Point>,
@@ -57,7 +54,6 @@ pub struct Vehicule<'a> {
     cross_passed: bool,
     path: Path,
     angle: f64
-   
 } 
 
 impl<'a> Vehicule<'a>  {
@@ -65,20 +61,19 @@ impl<'a> Vehicule<'a>  {
         Vehicule {
             id: 0,
             frame_id: frame_id as usize,
-            x, 
+            x,
             y,
             sprite,
-            speed : speed/2,
+            speed : speed,
             security_distance,
             path, 
             cross_passed: false,
-            angle: 0.0,
-            
+            angle: 0.0,    
         }
     }
 
     pub fn step(&mut self) { // Logique de la voiture frame par frame
-     
+    
         if let Some(target) = self.path.current_target() {
             // Calculer la direction vers le point de passage suivant
             let dx = target.x - self.x as i32;
@@ -91,7 +86,6 @@ impl<'a> Vehicule<'a>  {
             if dy < 0 {
                 self.angle = 0.0;
             }
-
             if dx > 0  {
                 self.angle = 90.0;
             }
@@ -105,7 +99,6 @@ impl<'a> Vehicule<'a>  {
             if dy.abs() <= self.speed as i32 {
                 self.y += dy as i64;
             }
-
             if dx.abs() <= self.speed as i32 && dy.abs() <= self.speed as i32 {
                 // Si le véhicule a atteint le point cible, avancer au point suivant
                 self.path.advance();
@@ -119,8 +112,8 @@ impl<'a> Vehicule<'a>  {
                 self.y += step_y;
             }
         }
-        
     }
+
     pub fn draw(&self, canvas: &mut Canvas<Window>, xscale: f32, yscale: f32) -> Result<(), String> { // draw de la voiture 
         if let Some(texture) = &self.sprite.loaded {
             let src_rect = self.sprite.get_frame(self.frame_id);
@@ -132,8 +125,28 @@ impl<'a> Vehicule<'a>  {
         }
         Ok(())
     }
+
     pub fn check_center() -> bool { // WIP
         true
+    }
+
+    pub fn has_reached_destination(&self) -> bool {
+        // Récupérer le point de destination actuel (le dernier point du chemin)
+        if let Some(destination) = self.path.current_target() {
+            // Calculer la distance entre la position actuelle et la destination
+            let dx = (destination.x - self.x as i32) as f64;
+            let dy = (destination.y - self.y as i32) as f64;
+            let distance = (dx * dx + dy * dy).sqrt();
+
+            // Définir une tolérance pour déterminer si le véhicule est proche de la destination
+            const TOLERANCE: f64 = 0.1; // Valeur à ajuster selon les besoins
+
+            // Vérifier si la distance est inférieure à la tolérance
+            distance < TOLERANCE
+        } else {
+            // Si aucun point de destination n'est défini, le véhicule est considéré comme arrivé
+            true
+        }
     }
 
 }
@@ -212,7 +225,6 @@ pub fn generate_path(start: Start, dir: Direction, window_size: (u32, u32), vehi
                     Point::new(0, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
                 ])
             }
-           },
-           
+        },   
     }
 }

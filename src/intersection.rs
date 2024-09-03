@@ -26,12 +26,20 @@ impl <'a> Intersection<'a> {
         for car in &mut self.cars {
             car.step();
         }
+
+        // Supprime les voitures qui ont atteint leur destination
+        self.cars.retain(|car| !car.has_reached_destination());
+        self.cross.retain(|car| !car.has_reached_destination());
     }
+
     pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
         if let Some(texture) = &self.sprite.loaded {
             canvas.copy(texture, None, None)?;
         }
         for car in self.cars.iter() {
+            car.draw(canvas, 0.2, 0.2)?;
+        }
+        for car in self.cross.iter() {
             car.draw(canvas, 0.2, 0.2)?;
         }
 
@@ -51,11 +59,9 @@ impl <'a> Intersection<'a> {
             _ => {
                 generate_path(from, Direction::Straigth, window_size, 35)
             },
-            
         };
      
-       self.cars.push(Vehicule::new(path.steps[0].x as i64, path.steps[0].y as i64, sprite, 10, 10, path, (gen * 3.0).round() as u16));
-        
+       self.cars.push(Vehicule::new(path.steps[0].x as i64, path.steps[0].y as i64, sprite, 5, 10, path, (gen * 3.0).round() as u16));
     }
 
     pub fn list_vehicles(&self) -> String {
