@@ -18,7 +18,8 @@ impl <'a> Intersection<'a> {
             sprite,
         }
     }
-    pub fn step(&mut self) { // appel les logiques des différentes voitures.
+    pub fn step(&mut self) {
+        // Met à jour la position des voitures
         for car in &mut self.cross {
             car.step();
         }
@@ -55,5 +56,12 @@ impl <'a> Intersection<'a> {
      
        self.cars.push(Vehicule::new(path.steps[0].x as i64, path.steps[0].y as i64, sprite, 10, 10, path, (gen * 3.0).round() as u16));
         
+    }
+
+    pub fn list_vehicles(&self) -> String {
+        self.cars.iter()
+            .map(|v| format!("ID: {}, Position: ({}, {})", v.id, v.x, v.y))
+            .collect::<Vec<String>>()
+            .join("\n")
     }
 }

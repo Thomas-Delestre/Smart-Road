@@ -85,6 +85,9 @@ fn main() -> Result<(), String> {
 
                                 intersection.add_car((800, 800), &voitures_sprite, random_direction);
                             }
+                            Keycode::L => {
+                                println!("List of vehicles in intersection:\n{}", intersection.list_vehicles());
+                            }
                             _ => {}
                         }
                     }

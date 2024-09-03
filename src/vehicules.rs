@@ -46,7 +46,7 @@ impl Path {
 
 
 pub struct Vehicule<'a> {
-    id: u16,
+    pub id: u16,
     pub frame_id: usize,
     pub x: i64, 
     pub y: i64,
@@ -77,7 +77,6 @@ impl<'a> Vehicule<'a>  {
         }
     }
 
-    
     pub fn step(&mut self) { // Logique de la voiture frame par frame
      
         if let Some(target) = self.path.current_target() {
@@ -136,6 +135,7 @@ impl<'a> Vehicule<'a>  {
     pub fn check_center() -> bool { // WIP
         true
     }
+
 }
 
 
