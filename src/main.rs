@@ -106,7 +106,7 @@ fn main() -> Result<(), String> {
         canvas.clear(); 
         // Draw vehicles   
         intersection.draw(&mut canvas)?; 
-        // canvas.fill_rect(Rect::new(270, 270, 260, 260));
+        let _ = canvas.draw_rect(Rect::new(265, 265, 270, 270));
         canvas.present();
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
