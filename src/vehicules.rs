@@ -118,6 +118,7 @@ impl<'a> Vehicule<'a>  {
         if let Some(texture) = &self.sprite.loaded {
             let src_rect = self.sprite.get_frame(self.frame_id);
             let fsize = self.sprite.get_frame_size();
+            // println!("TAILLE DE MON SPRITE CAR : {} , {}",(fsize.0 as f32) * xscale, (fsize.1 as f32) * xscale);
             let dest_rect = Rect::new(self.x as i32, self.y as i32, (fsize.0 as f32 * xscale).round() as u32, (fsize.1 as f32 * yscale).round() as u32); // Ajustez la taille selon votre texture
             canvas.copy_ex(texture, Some(src_rect), Some(dest_rect), self.angle, None, false, false)?;
         }else {

@@ -1,4 +1,4 @@
-use crate::vehicules::{generate_path, Direction, Start, Vehicule};
+use crate::vehicules::{self, generate_path, Direction, Start, Vehicule};
 use crate::sprites::{Sprite};
 use sdl2::video::{WindowContext, Window};
 use sdl2::render::{Canvas, Texture, TextureCreator};
@@ -16,8 +16,13 @@ impl <'a> Intersection<'a> {
             cars: Vec::new(),
             cross: Vec::new(),
             sprite,
-        }
+        }  
     }
+
+    pub fn cross_perimeter(&mut self) {
+        let cross_detector = Rect::new(380, 380, 240, 240);
+    }
+
     pub fn step(&mut self) {
         // Met à jour la position des voitures
         for car in &mut self.cross {
