@@ -1,11 +1,11 @@
-use sdl2::{pixels::Color, render::TextureCreator};
+use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 use std::time::Instant;
 use rand::Rng;
-use vehicules::{Vehicule, Start, Direction};
+use vehicules::Start;
 use intersection::Intersection;
 use sprites::Sprite;
 
@@ -18,7 +18,7 @@ fn main() -> Result<(), String> {
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-    let mut window = video_subsystem.window("Smart Intersection", 800, 800)
+    let window = video_subsystem.window("Smart Intersection", 800, 800)
         .position_centered()
         .build()
         .map_err(|e| e.to_string())?;
@@ -51,7 +51,7 @@ fn main() -> Result<(), String> {
                 }
 
                 Event::KeyDown { keycode: Some(keycode), .. } => {
-                    if last_key_event_time.elapsed() >= Duration::from_millis(200) {
+                    if last_key_event_time.elapsed() >= Duration::from_millis(1000) {
                         last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps
                         
                         println!("Key down: {:?}", keycode);
@@ -106,7 +106,7 @@ fn main() -> Result<(), String> {
         canvas.clear(); 
         // Draw vehicles   
         intersection.draw(&mut canvas)?; 
-        let _ = canvas.draw_rect(Rect::new(265, 265, 270, 270));
+        let _ = canvas.draw_rect(Rect::new(250, 310, 300, 180));
         canvas.present();
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

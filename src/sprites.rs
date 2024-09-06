@@ -1,6 +1,6 @@
 use sdl2::rect::Rect;
-use sdl2::render::{Canvas, Texture, TextureCreator, TextureQuery};
-use sdl2::video::{WindowContext, Window};
+use sdl2::render::{Texture, TextureCreator};
+use sdl2::video::WindowContext;
 use sdl2::image::LoadTexture;
 
 pub struct Sprite <'a> {

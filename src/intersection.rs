@@ -28,7 +28,7 @@ impl <'a> Intersection<'a> {
 
     pub fn cross_perimeter(&self) -> Rect {
         // Définir et retourner la zone de détection
-        Rect::new(265, 265, 270, 270)
+        Rect::new(250, 310, 300, 180)
     }
 
     fn is_in_cross(&self, car: &Vehicule, cross: &Rect) -> bool {
@@ -37,37 +37,62 @@ impl <'a> Intersection<'a> {
     }
 
     pub fn step(&mut self) {
-    // Met à jour la position des voitures déjà dans l'intersection
-    for car in &mut self.cross {
-        car.step();
-    }
+        // Met à jour la position des voitures déjà dans l'intersection
+        if !self.cross.is_empty() {
+            // La première voiture dans l'intersection accélère
+            self.cross[0].speed = 5; // Donne une vitesse de 8 à la première voiture
+            self.cross[0].step(); // La première voiture dans l'intersection avance
+        }
+        
+        // Les autres voitures dans l'intersection maintiennent une vitesse réduite
+        for i in 1..self.cross.len() {
+            self.cross[i].speed = 1; // Les autres voitures dans cross ont une vitesse réduite
+            self.cross[i].step();
+        }
 
-    // Obtenir la zone de détection
-    let detection_zone = self.cross_perimeter();
+        // Obtenir la zone de détection
+        let detection_zone = self.cross_perimeter();
 
-    // Créer un index pour itérer manuellement
-    let mut cars_i = 0;
-    while cars_i < self.cars.len() {
-        if self.is_in_cross(&self.cars[cars_i], &detection_zone) {
-            // Si la voiture est dans l'intersection, la transférer à cross
-            let car = self.cars.remove(cars_i); // Supprime la voiture de cars
-            self.cross.push(car);       
-            for car in &self.cross {
-                println!("Car ID: {}, Position: ({}, {})", car.id, car.x, car.y);
+        // Créer un index pour itérer manuellement sur les voitures
+        let mut cars_i = 0;
+        while cars_i < self.cars.len() {
+            if self.is_in_cross(&self.cars[cars_i], &detection_zone) {
+                // Si la voiture est dans l'intersection, la transférer à cross
+                let car = self.cars.remove(cars_i); // Supprime la voiture de cars
+                self.cross.push(car);
+                for car in &self.cross {
+                    println!("Car ID: {} and path : {:?}", car.id, car.path);
+                }
+            } else {
+                cars_i += 1; 
+            }
+        }
+
+        // Si l'intersection n'est pas vide
+        if !self.cross.is_empty() {
+            // Si des voitures attendent encore avant de rentrer dans l'intersection
+            if !self.cars.is_empty() {
+                // La première voiture en dehors de l'intersection avance normalement
+                self.cars[0].speed = 2; // Vitesse normale pour la première voiture en dehors de l'intersection
+                self.cars[0].step();
+            }
+
+            // Ralentir les autres voitures en attente en dehors de l'intersection
+            for i in 1..self.cars.len() {
+                self.cars[i].speed = 1; // Ralentir les voitures suivantes
+                self.cars[i].step();
             }
         } else {
-            cars_i += 1; 
+            // Si l'intersection est vide, toutes les voitures en dehors de l'intersection avancent normalement
+            for car in &mut self.cars {
+                car.speed = 5; // Vitesse normale
+                car.step();
+            }
         }
-    }
 
-    // Met à jour la position des voitures restantes dans cars
-    for car in &mut self.cars {
-        car.step();
-    }
-
-    // Supprime les voitures qui ont atteint leur destination
-    self.cars.retain(|car| !car.has_reached_destination());
-    self.cross.retain(|car| !car.has_reached_destination());
+        // Supprimer les voitures qui ont atteint leur destination
+        self.cars.retain(|car| !car.has_reached_destination());
+        self.cross.retain(|car| !car.has_reached_destination());
     }
 
     pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {

@@ -1,6 +1,5 @@
-use sdl2::render::{Canvas, Texture, TextureCreator};
-use sdl2::video::{WindowContext, Window};
-use sdl2::image::LoadTexture;
+use sdl2::render::Canvas;
+use sdl2::video::Window;
 use sdl2::rect::{Point, Rect};
 
 use crate::sprites::Sprite;
@@ -18,6 +17,7 @@ pub enum Direction {
     Right,
 }
 
+#[derive(Debug)]
 pub struct Path {
     pub steps: Vec<Point>,
     pub current_index: usize,
@@ -48,11 +48,9 @@ pub struct Vehicule<'a> {
     pub x: i64, 
     pub y: i64,
     pub sprite: &'a  Sprite<'a>, 
-    speed: u8, // vitesse en pixels / frames
+    pub speed: u8, // vitesse en pixels / frames
     security_distance: u32,
-    // current: Pos,
-    cross_passed: bool,
-    path: Path,
+    pub path: Path,
     angle: f64
 } 
 
@@ -67,7 +65,6 @@ impl<'a> Vehicule<'a>  {
             speed : speed,
             security_distance,
             path, 
-            cross_passed: false,
             angle: 0.0,    
         }
     }
