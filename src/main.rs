@@ -49,9 +49,8 @@ fn main() -> Result<(), String> {
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
                 }
-
                 Event::KeyDown { keycode: Some(keycode), .. } => {
-                    if last_key_event_time.elapsed() >= Duration::from_millis(1000) {
+                    if last_key_event_time.elapsed() >= Duration::from_millis(500) {
                         last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps
                         
                         println!("Key down: {:?}", keycode);
@@ -106,7 +105,7 @@ fn main() -> Result<(), String> {
         canvas.clear(); 
         // Draw vehicles   
         intersection.draw(&mut canvas)?; 
-        let _ = canvas.draw_rect(Rect::new(250, 310, 300, 180));
+        let _ = canvas.draw_rect(Rect::new(250, 250, 300, 300));
         canvas.present();
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

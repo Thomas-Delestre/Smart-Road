@@ -28,7 +28,7 @@ impl <'a> Intersection<'a> {
 
     pub fn cross_perimeter(&self) -> Rect {
         // Définir et retourner la zone de détection
-        Rect::new(250, 310, 300, 180)
+        Rect::new(250, 250, 300, 300)
     }
 
     fn is_in_cross(&self, car: &Vehicule, cross: &Rect) -> bool {
@@ -39,53 +39,59 @@ impl <'a> Intersection<'a> {
     pub fn step(&mut self) {
         // Met à jour la position des voitures déjà dans l'intersection
         if !self.cross.is_empty() {
-            // La première voiture dans l'intersection accélère
-            self.cross[0].speed = 5; // Donne une vitesse de 8 à la première voiture
-            self.cross[0].step(); // La première voiture dans l'intersection avance
-        }
+            // Accélérer la première voiture dans l'intersection
+            self.cross[0].speed = 10;
+            self.cross[0].step();
         
-        // Les autres voitures dans l'intersection maintiennent une vitesse réduite
-        for i in 1..self.cross.len() {
-            self.cross[i].speed = 1; // Les autres voitures dans cross ont une vitesse réduite
-            self.cross[i].step();
+            // Accélérer les voitures venant de la même direction
+            for i in 1..self.cross.len() {
+                if self.cross[i].path.from == self.cross[0].path.from {
+                    self.cross[i].speed = 10;
+                } else {
+                    self.cross[i].speed = 2; // Les autres voitures dans l'intersection ralentissent
+                }
+                self.cross[i].step();
+            }
         }
 
-        // Obtenir la zone de détection
+        // Gérer les voitures en dehors de l'intersection
         let detection_zone = self.cross_perimeter();
-
-        // Créer un index pour itérer manuellement sur les voitures
         let mut cars_i = 0;
+        
         while cars_i < self.cars.len() {
-            if self.is_in_cross(&self.cars[cars_i], &detection_zone) {
+            if self.is_in_cross(&self.cars[cars_i], &detection_zone) && self.cars[cars_i].path.dir != Direction::Right {
                 // Si la voiture est dans l'intersection, la transférer à cross
-                let car = self.cars.remove(cars_i); // Supprime la voiture de cars
+                let car = self.cars.remove(cars_i);
                 self.cross.push(car);
-                for car in &self.cross {
-                    println!("Car ID: {} and path : {:?}", car.id, car.path);
-                }
             } else {
-                cars_i += 1; 
+                cars_i += 1;
+            }
+        }
+
+        // Gérer les voitures à l'extérieur de l'intersection
+        for car in &mut self.cars {
+            if car.path.dir == Direction::Right {
+                car.speed = 10; // Vitesse normale pour les voitures allant à droite
             }
         }
 
         // Si l'intersection n'est pas vide
         if !self.cross.is_empty() {
-            // Si des voitures attendent encore avant de rentrer dans l'intersection
             if !self.cars.is_empty() {
-                // La première voiture en dehors de l'intersection avance normalement
-                self.cars[0].speed = 2; // Vitesse normale pour la première voiture en dehors de l'intersection
+                // Gérer la première voiture en dehors de l'intersection
+                self.cars[0].speed = 5;
                 self.cars[0].step();
-            }
 
-            // Ralentir les autres voitures en attente en dehors de l'intersection
-            for i in 1..self.cars.len() {
-                self.cars[i].speed = 1; // Ralentir les voitures suivantes
-                self.cars[i].step();
+                // Ralentir les autres voitures en attente
+                for i in 1..self.cars.len() {
+                    self.cars[i].speed = 2;
+                    self.cars[i].step();
+                }
             }
         } else {
-            // Si l'intersection est vide, toutes les voitures en dehors de l'intersection avancent normalement
+            // Si l'intersection est vide, toutes les voitures avancent normalement
             for car in &mut self.cars {
-                car.speed = 5; // Vitesse normale
+                car.speed = 10;
                 car.step();
             }
         }

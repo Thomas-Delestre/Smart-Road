@@ -4,6 +4,7 @@ use sdl2::rect::{Point, Rect};
 
 use crate::sprites::Sprite;
 
+#[derive(PartialEq, Debug)]
 pub enum Start {
     North,
     South,
@@ -11,6 +12,7 @@ pub enum Start {
     West,
 }
 
+#[derive(PartialEq, Debug)]
 pub enum Direction {
     Straigth,
     Left,
@@ -21,13 +23,17 @@ pub enum Direction {
 pub struct Path {
     pub steps: Vec<Point>,
     pub current_index: usize,
+    pub dir: Direction,
+    pub from: Start
 }
 
 impl Path {
-    pub fn new(steps: Vec<Point>) -> Path {
+    pub fn new(steps: Vec<Point>, dir:Direction, from:Start) -> Path {
         Path {
             steps,
             current_index: 0,
+            dir,
+            from,
         }
     }
     pub fn current_target(&self) -> Option<Point> {
@@ -65,8 +71,16 @@ impl<'a> Vehicule<'a>  {
             speed : speed,
             security_distance,
             path, 
-            angle: 0.0,    
+            angle: 0.0,
         }
+    }
+    
+    pub fn check_security_distance(&self, other: &Vehicule) -> bool {
+        let dx = self.x - other.x;
+        let dy = self.y - other.y;
+        let distance = ((dx * dx + dy * dy) as f64).sqrt();
+
+        distance > self.security_distance as f64
     }
 
     pub fn step(&mut self) { // Logique de la voiture frame par frame
@@ -158,34 +172,34 @@ pub fn generate_path(start: Start, dir: Direction, window_size: (u32, u32), vehi
                     Point::new(0, (window_size.1 / 2) as i32),
                     Point::new((window_size.0 / 2 + 7)  as i32, (window_size.1 / 2) as i32),
                     Point::new((window_size.0 / 2 + 7) as i32, 0),
-                ]),
+                ],dir, start),
                 Direction::Straigth => Path::new(vec![
                     Point::new(0, (window_size.1 / 2 + vehicule_height ) as i32),
                     Point::new(window_size.0 as i32, (window_size.1 / 2 + vehicule_height) as i32),
-                ]),
+                ],dir, start),
                 Direction::Right => Path::new(vec![
                     Point::new(0, (window_size.1 / 2 + 80) as i32),
                     Point::new((window_size.0 / 3)  as i32, (window_size.1 / 2 + 80) as i32),
                     Point::new((window_size.0 / 3 + 7) as i32, (window_size.1) as i32),
-                ])
+                ],dir, start)
             }
-           },
+        },
            Start::South => {
             match dir {
                 Direction::Left => Path::new(vec![
                     Point::new((window_size.0 / 2 + 7) as i32, window_size.1 as i32),
                     Point::new((window_size.0 / 2 + 7) as i32, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
                     Point::new(0, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
-                ]),
+                ],dir, start),
                 Direction::Straigth => Path::new(vec![
                     Point::new((window_size.0 / 2 + vehicule_height + 10) as i32, window_size.1 as i32),
                     Point::new((window_size.0 / 2 + vehicule_height + 10) as i32, 0),
-                ]),
+                ],dir, start),
                 Direction::Right => Path::new(vec![
                     Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, window_size.1 as i32),
                     Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, (window_size.1 / 2 + vehicule_height + 45) as i32),
                     Point::new(window_size.0 as i32, (window_size.1 / 2 + vehicule_height + 45) as i32),
-                ])
+                ],dir, start)
             }
            },
            Start::East => {
@@ -194,16 +208,16 @@ pub fn generate_path(start: Start, dir: Direction, window_size: (u32, u32), vehi
                     Point::new(window_size.0 as i32, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
                     Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, (window_size.1 / 2 - (vehicule_height + 15)) as i32),
                     Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, window_size.1 as i32),
-                ]),
+                ],dir, start),
                 Direction::Straigth => Path::new(vec![
                     Point::new(window_size.0 as i32, (window_size.1 / 2 - (vehicule_height + 57)) as i32),
                     Point::new(0 as i32, (window_size.1 / 2 - (vehicule_height + 57)) as i32),
-                ]),
+                ],dir, start),
                 Direction::Right => Path::new(vec![
                     Point::new(window_size.0 as i32, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
                     Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
                     Point::new((window_size.0 / 2 + vehicule_height + 55) as i32, 0 as i32),
-                ])
+                ],dir, start)
             }
            },
            Start::North => {
@@ -212,16 +226,16 @@ pub fn generate_path(start: Start, dir: Direction, window_size: (u32, u32), vehi
                     Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, 0),
                     Point::new((window_size.0 / 2 - (vehicule_height + 10)) as i32, (window_size.1 / 2) as i32),
                     Point::new(window_size.0 as i32, (window_size.1 / 2) as i32),
-                ]),
+                ],dir, start),
                 Direction::Straigth => Path::new(vec![
                     Point::new((window_size.0 / 2 - (vehicule_height + 50)) as i32, 0 as i32),
                     Point::new((window_size.0 / 2 - (vehicule_height + 50)) as i32, window_size.1 as i32),
-                ]),
+                ],dir, start),
                 Direction::Right => Path::new(vec![
                     Point::new((window_size.0 / 2 - (vehicule_height + 95)) as i32, 0 as i32),
                     Point::new((window_size.0 / 2 - (vehicule_height + 95)) as i32, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
                     Point::new(0, (window_size.1 / 2 - (vehicule_height + 100)) as i32),
-                ])
+                ],dir, start)
             }
         },   
     }
