@@ -1,3 +1,5 @@
+use std::future;
+
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::{Point, Rect};
@@ -19,12 +21,13 @@ pub enum Direction {
     Right,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Path {
     pub steps: Vec<Point>,
     pub current_index: usize,
     pub dir: Direction,
-    pub from: Start
+    pub from: Start,
+    pub ended: bool,
 }
 
 impl Path {
@@ -34,6 +37,7 @@ impl Path {
             current_index: 0,
             dir,
             from,
+            ended: false,
         }
     }
     pub fn current_target(&self) -> Option<Point> {
@@ -43,6 +47,8 @@ impl Path {
     pub fn advance(&mut self) {
         if self.current_index < self.steps.len() - 1 {
             self.current_index += 1;
+        }else{
+            self.ended = true;
         }
     }
 }
@@ -53,26 +59,51 @@ pub struct Vehicule<'a> {
     pub frame_id: usize,
     pub x: i64, 
     pub y: i64,
+    pub vehicule_size: (u32, u32),
     pub sprite: &'a  Sprite<'a>, 
     pub speed: u8, // vitesse en pixels / frames
     security_distance: u32,
     pub path: Path,
     angle: f64
+    
 } 
 
 impl<'a> Vehicule<'a>  {
-    pub fn new(x: i64, y: i64, sprite: &'a  Sprite<'a> , speed: u8, security_distance: u32, path: Path, frame_id: u16) -> Vehicule<'a> {
+    pub fn new(x: i64, y: i64, sprite: &'a  Sprite<'a> , speed: u8, security_distance: u32, path: Path, frame_id: u16, vehicule_size: (u32, u32)) -> Vehicule<'a> {
         Vehicule {
             id: 0,
             frame_id: frame_id as usize,
             x,
             y,
+            vehicule_size,
             sprite,
             speed : speed,
             security_distance,
             path, 
             angle: 0.0,
         }
+    }
+
+    pub fn check_col(&self, sector: &Vec<Vehicule>) -> bool {
+        let dir_target: Point = self.path.current_target().unwrap();
+        let dx = (dir_target.x - self.x as i32).abs();
+        let dy = (dir_target.y - self.y as i32).abs();
+        
+        let mut future_cb: Rect =  self.get_collide_box();
+        future_cb.x = future_cb.x +  dx * self.speed as i32;
+        future_cb.y = future_cb.y +  dy * self.speed as i32;
+
+        println!("test {:?}", self.id);
+
+        for other in sector {
+            if other.id != self.id {
+                if other.get_collide_box().has_intersection(future_cb) {
+                    return true;
+                }
+            }
+            
+        }
+        false
     }
     
     pub fn check_security_distance(&self, other: &Vehicule) -> bool {
@@ -138,27 +169,24 @@ impl<'a> Vehicule<'a>  {
         Ok(())
     }
 
-    pub fn check_center() -> bool { // WIP
-        true
+
+    pub fn get_collide_box(&self) -> Rect {
+        Rect::new(self.x as i32, self.y as i32, self.vehicule_size.0, self.vehicule_size.1)
     }
+    pub fn is_in_cross(&self, cross: Rect) -> bool { // Check si le vehicule est au centre de l'intersection
+        self.get_collide_box().has_intersection(cross)
+    } 
 
-    pub fn has_reached_destination(&self) -> bool {
+    pub fn distance_to_destiation(&self) -> f64 {
         // Récupérer le point de destination actuel (le dernier point du chemin)
-        if let Some(destination) = self.path.current_target() {
+     
             // Calculer la distance entre la position actuelle et la destination
-            let dx = (destination.x - self.x as i32) as f64;
-            let dy = (destination.y - self.y as i32) as f64;
+            
+            let dx = (self.path.steps[self.path.steps.len() - 1].x - self.x as i32) as f64;
+            let dy = (self.path.steps[self.path.steps.len() - 1].y - self.y as i32) as f64;
             let distance = (dx * dx + dy * dy).sqrt();
-
-            // Définir une tolérance pour déterminer si le véhicule est proche de la destination
-            const TOLERANCE: f64 = 0.1; // Valeur à ajuster selon les besoins
-
-            // Vérifier si la distance est inférieure à la tolérance
-            distance < TOLERANCE
-        } else {
-            // Si aucun point de destination n'est défini, le véhicule est considéré comme arrivé
-            true
-        }
+            distance
+    
     }
 
 }

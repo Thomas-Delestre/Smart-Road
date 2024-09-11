@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::vehicules::{self, generate_path, Direction, Start, Vehicule};
 use crate::sprites::{Sprite};
 use sdl2::video::{WindowContext, Window};
@@ -6,13 +8,15 @@ extern crate rand;
 use rand::Rng;
 use sdl2::rect::Rect;
 
+
 pub struct Intersection<'a> {
     cars: Vec<Vehicule<'a>>,
     cross: Vec<Vehicule<'a>>,
     sprite: Sprite<'a>,
     next_id: u16, // Champ pour gérer les identifiants de véhicules
+    speeds: Vec<u8>,
+    cross_perimeter: Rect,
 }
-
 
 
 impl <'a> Intersection<'a> {
@@ -23,6 +27,8 @@ impl <'a> Intersection<'a> {
             cross: Vec::new(),
             sprite,
             next_id: 1, // Commence à 1
+            speeds: vec![2, 5, 10],
+            cross_perimeter:  Rect::new(250, 250, 300, 300),
         }
     }
 
@@ -31,74 +37,125 @@ impl <'a> Intersection<'a> {
         Rect::new(250, 250, 300, 300)
     }
 
-    fn is_in_cross(&self, car: &Vehicule, cross: &Rect) -> bool {
-        let car_rect = Rect::new(car.x as i32, car.y as i32, 40, 91);
-        cross.has_intersection(car_rect)
-    }
+    
 
     pub fn step(&mut self) {
+
+        let mut to_remove: Vec<usize> = Vec::new();
+
+
         // Met à jour la position des voitures déjà dans l'intersection
         if !self.cross.is_empty() {
-            // Accélérer la première voiture dans l'intersection
-            self.cross[0].speed = 10;
-            self.cross[0].step();
-        
-            // Accélérer les voitures venant de la même direction
-            for i in 1..self.cross.len() {
-                if self.cross[i].path.from == self.cross[0].path.from {
-                    self.cross[i].speed = 10;
-                } else {
-                    self.cross[i].speed = 2; // Les autres voitures dans l'intersection ralentissent
+
+            for i in 0..self.cross.len() {
+
+                let mut prio: bool = true;
+
+                for j in 0..i {
+
+                    if self.cross[i].path.from != self.cross[j].path.from {
+                        prio = false;
+                        break;
+                    }
                 }
-                self.cross[i].step();
+                
+                if prio {
+                    self.cross[i].speed = self.speeds[2];
+                }else{
+                    
+                    self.cross[i].speed = self.speeds[0]
+                }
+                if !self.cross[i].check_col(&self.cross) {
+                    self.cross[i].step();
+                }
+               
+
             }
+
+            // Accélérer la première voiture dans l'intersection
+            // self.cross[0].speed = self.speeds[2];
+            // self.cross[0].step();
+        
+            // // Accélérer les voitures venant de la même direction
+            // for i in 1..self.cross.len() {
+            //     if self.cross[i].path.from == self.cross[0].path.from {
+            //         self.cross[i].speed = self.speeds[2];
+            //     } else {
+            //         self.cross[i].speed = self.speeds[0]; // Les autres voitures dans l'intersection ralentissent
+            //     }
+            //     self.cross[i].step();
+            // }
         }
 
         // Gérer les voitures en dehors de l'intersection
-        let detection_zone = self.cross_perimeter();
+       
         let mut cars_i = 0;
         
         while cars_i < self.cars.len() {
-            if self.is_in_cross(&self.cars[cars_i], &detection_zone) && self.cars[cars_i].path.dir != Direction::Right {
+            if self.cars[cars_i].is_in_cross(self.cross_perimeter) && self.cars[cars_i].path.dir != Direction::Right {
                 // Si la voiture est dans l'intersection, la transférer à cross
                 let car = self.cars.remove(cars_i);
                 self.cross.push(car);
+                print!("Switch");
             } else {
                 cars_i += 1;
             }
         }
 
-        // Gérer les voitures à l'extérieur de l'intersection
-        for car in &mut self.cars {
-            if car.path.dir == Direction::Right {
-                car.speed = 10; // Vitesse normale pour les voitures allant à droite
+        cars_i = 0;
+        while cars_i < self.cross.len() {
+            if !self.cross[cars_i].is_in_cross(self.cross_perimeter) && self.cross[cars_i].path.dir != Direction::Right {
+                // Si la voiture est dans l'intersection, la transférer à cross
+                let car = self.cross.remove(cars_i);
+                self.cars.push(car);
+                print!("Switch");
+            } else {
+                cars_i += 1;
             }
         }
+
+        // print!("{} len cross",self.cross.len());
+        // Gérer les voitures à l'extérieur de l'intersection
+        // for car in &mut self.cars {
+        //     if car.path.dir == Direction::Right {
+        //         car.speed = self.speeds[2]; // Vitesse normale pour les voitures allant à droite
+        //     }
+        // }
 
         // Si l'intersection n'est pas vide
-        if !self.cross.is_empty() {
-            if !self.cars.is_empty() {
-                // Gérer la première voiture en dehors de l'intersection
-                self.cars[0].speed = 5;
-                self.cars[0].step();
+        // if !self.cross.is_empty() {
+        //     if !self.cars.is_empty() {
+        //         // Gérer la première voiture en dehors de l'intersection
+        //         self.cars[0].speed = self.speeds[1];
+        //         self.cars[0].step();
 
-                // Ralentir les autres voitures en attente
-                for i in 1..self.cars.len() {
-                    self.cars[i].speed = 2;
-                    self.cars[i].step();
+        //         // Ralentir les autres voitures en attente
+        //         for i in 1..self.cars.len() {
+        //             self.cars[i].speed = self.speeds[0];
+        //             self.cars[i].step();
+        //         }
+        //     }
+        // } else {
+            //toutes les voitures avancent normalement
+            
+            for i in 0..self.cars.len() {
+                self.cars[i].speed = self.speeds[1];
+                if  self.cars[i].path.dir == Direction::Right {
+                    self.cars[i].speed = self.speeds[2];
+                }
+                self.cars[i].step();
+                if  self.cars[i].path.ended {
+                    to_remove.push(i);
                 }
             }
-        } else {
-            // Si l'intersection est vide, toutes les voitures avancent normalement
-            for car in &mut self.cars {
-                car.speed = 10;
-                car.step();
+
+            for (i, car)  in to_remove.iter().enumerate(){
+                self.cars.remove(car - i);
             }
-        }
+        // }
 
         // Supprimer les voitures qui ont atteint leur destination
-        self.cars.retain(|car| !car.has_reached_destination());
-        self.cross.retain(|car| !car.has_reached_destination());
+     
     }
 
     pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
@@ -115,7 +172,7 @@ impl <'a> Intersection<'a> {
         Ok(())
     }
 
-    pub fn add_car(&mut self, window_size: (u32, u32), sprite: &'a Sprite<'a>, from: Start) {
+    pub fn add_car(&mut self, window_size: (u32, u32), sprite: &'a Sprite<'a>, from: Start, vehicule_size: (u32, u32)) {
         let mut rng = rand::thread_rng();
         let gen: f64 = rng.gen();
      
@@ -134,6 +191,7 @@ impl <'a> Intersection<'a> {
             10, // distance de sécurité
             path,
             (gen * 3.0).round() as u16,
+            vehicule_size,
         );
 
         // Attribuer l'identifiant unique

@@ -3,6 +3,8 @@ use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
 use sdl2::image::LoadTexture;
 
+
+
 pub struct Sprite <'a> {
     pub source: &'a str, 
     rows: u8,
