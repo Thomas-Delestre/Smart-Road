@@ -54,30 +54,30 @@ fn main() -> Result<(), String> {
                     break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
                 }
                 Event::KeyDown { keycode: Some(keycode), .. } => {
-                    if last_key_event_time.elapsed() >= Duration::from_millis(200) {
+                    if last_key_event_time.elapsed() >= Duration::from_millis(300) {
                         last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps
                         
-                        println!("Key down: {:?}", keycode);
+                        // println!("Key down: {:?}", keycode);
                         match keycode {
                             Keycode::Up => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::South, VEHICULE_SIZE);
-                                println!("Moving Up");
+                                // println!("Moving Up");
                             }
                             Keycode::Down => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::North, VEHICULE_SIZE);
-                                println!("Moving Down");
+                                // println!("Moving Down");
                             }
                             Keycode::Left => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::East, VEHICULE_SIZE);
-                                println!("Moving Left");
+                                // println!("Moving Left");
                             }
                             Keycode::Right => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::West, VEHICULE_SIZE);
-                                println!("Moving Right");
+                                // println!("Moving Right");
                             }
                             Keycode::R => {
                                 
-                                println!("R for RANDOM");
+                                // println!("R for RANDOM");
                                 // Générer un entier aléatoire entre 0 et 3
                                 let mut rng = rand::thread_rng();
                                 let random_direction = match rng.gen_range(0, 4) {

@@ -202,7 +202,7 @@ impl<'a> Vehicule<'a>  {
     pub fn get_collide_box(&self) -> Rect {
        
         let mut coll_size: (u32, u32) = self.vehicule_size; 
-        let mut coll_pos: (i32, i32) = (self.x as i32, self.y as i32); 
+        let mut coll_pos: (i32, i32) = (self.x as i32   , self.y as i32); 
 
         
         if self.angle == 180.0 || self.angle == 0.0 { // si le vehicule est à l'horizontal je change la width et la height

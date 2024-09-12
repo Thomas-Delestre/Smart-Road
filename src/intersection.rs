@@ -97,9 +97,12 @@ impl <'a> Intersection<'a> {
 
                 
                 // Si la voiture est dans l'intersection, la transférer à cross
-                if self.cross.len() < 12 {
+                if self.cross.len() < 6 {
                     let car = self.cars.remove(cars_i);
                     self.cross.push(car);
+                    
+                }else{
+                    cars_i += 1;
                 }
 
                 
