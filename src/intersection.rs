@@ -18,7 +18,6 @@ pub struct Intersection<'a> {
     cross_perimeter: Rect,
 }
 
-
 impl <'a> Intersection<'a> {
 
     pub fn new(sprite: Sprite<'a>) -> Intersection<'a> {
