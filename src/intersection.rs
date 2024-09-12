@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs::DirEntry;
 
 use crate::vehicules::{self, generate_path, Direction, Start, Vehicule};
 use crate::sprites::{Sprite};
@@ -17,7 +18,6 @@ pub struct Intersection<'a> {
     speeds: Vec<u8>,
     cross_perimeter: Rect,
 }
-
 
 impl <'a> Intersection<'a> {
 
@@ -98,8 +98,20 @@ impl <'a> Intersection<'a> {
                 
                 // Si la voiture est dans l'intersection, la transférer à cross
                 if self.cross.len() < 6 {
+                    
                     let car = self.cars.remove(cars_i);
-                    self.cross.push(car);
+                    if car.path.dir == Direction::Left {
+                        if self.count_dir_in_cross(Direction::Left) < 3 {
+                            self.cross.push(car);
+                        }else{
+                            cars_i += 1;
+                        }
+                    }else{
+                        self.cross.push(car);
+                    }
+                    
+
+                   
                     
                 }else{
                     cars_i += 1;
@@ -177,6 +189,15 @@ impl <'a> Intersection<'a> {
      
     }
 
+    fn count_dir_in_cross(&self, dir: Direction) -> u8 {
+        let mut count: u8 = 0;
+        for checkc in &self.cross {
+            if checkc.path.dir == dir {
+                count = count + 1;
+            }
+        }
+        count
+    }
     pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
         if let Some(texture) = &self.sprite.loaded {
             canvas.copy(texture, None, None)?;

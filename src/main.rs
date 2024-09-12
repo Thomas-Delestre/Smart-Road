@@ -16,7 +16,7 @@ mod intersection;
 fn main() -> Result<(), String> {
     const BG_SOURCE: &str = "./assets/road.jpg"; // Fichier source du background
     const VEHICULE_SOURCE: &str = "./assets/car.png";
-    const VEHICULE_SIZE: (u32, u32) = (50, 40); 
+    const VEHICULE_SIZE: (u32, u32) = (45, 40); 
     const WINDOW_SIZE: (u32, u32) = (800, 800);
 
 
