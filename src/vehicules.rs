@@ -1,5 +1,6 @@
 use std::future;
 
+use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::{Point, Rect};
@@ -64,7 +65,8 @@ pub struct Vehicule<'a> {
     pub speed: u8, // vitesse en pixels / frames
     security_distance: u32,
     pub path: Path,
-    angle: f64
+    angle: f64,
+    pub out_cross: bool
     
 } 
 
@@ -81,24 +83,32 @@ impl<'a> Vehicule<'a>  {
             security_distance,
             path, 
             angle: 0.0,
+            out_cross: false
         }
     }
 
-    pub fn check_col(&self, sector: &Vec<Vehicule>) -> bool {
-        let dir_target: Point = self.path.current_target().unwrap();
-        let dx = (dir_target.x - self.x as i32).abs();
-        let dy = (dir_target.y - self.y as i32).abs();
+    pub fn check_col(&self, sector: &Vec<Vehicule>) -> bool { // à réécrire prcq de la merde
         
         let mut future_cb: Rect =  self.get_collide_box();
-        future_cb.x = future_cb.x +  dx * self.speed as i32;
-        future_cb.y = future_cb.y +  dy * self.speed as i32;
 
-        println!("test {:?}", self.id);
+        let dir_target: Point = self.path.current_target().unwrap();
+        let dx = (dir_target.x - self.x as i32).signum();
+        let dy = (dir_target.y - self.y as i32).signum();
+        
+        future_cb.x = future_cb.x + dx * self.security_distance as i32 +  dx * self.speed as i32;
+        
+        future_cb.y = future_cb.y + dy * self.security_distance as i32 +  dy * self.speed as i32;
+
+        println!("test {:?}",  dx * self.security_distance as i32);
 
         for other in sector {
             if other.id != self.id {
-                if other.get_collide_box().has_intersection(future_cb) {
-                    return true;
+                let obox: Rect = other.get_collide_box();
+
+                if obox.has_intersection(future_cb) {
+                   
+                        return true;
+                    
                 }
             }
             
@@ -122,16 +132,16 @@ impl<'a> Vehicule<'a>  {
             let dy = target.y - self.y as i32;
 
                 // Check des directions pour update les angles
-            if dy > 0  {
-                self.angle = 180.0;
+            if dy > 0  { // bas 
+                self.angle = 180.0; 
             }
-            if dy < 0 {
+            if dy < 0 { // haut
                 self.angle = 0.0;
             }
-            if dx > 0  {
+            if dx > 0  { // droite
                 self.angle = 90.0;
             }
-            if dx < 0 {
+            if dx < 0 { // gauche
                 self.angle = -90.0;
             }
             // update les derniers pixel avant le points a atteindre
@@ -163,6 +173,25 @@ impl<'a> Vehicule<'a>  {
             // println!("TAILLE DE MON SPRITE CAR : {} , {}",(fsize.0 as f32) * xscale, (fsize.1 as f32) * xscale);
             let dest_rect = Rect::new(self.x as i32, self.y as i32, (fsize.0 as f32 * xscale).round() as u32, (fsize.1 as f32 * yscale).round() as u32); // Ajustez la taille selon votre texture
             canvas.copy_ex(texture, Some(src_rect), Some(dest_rect), self.angle, None, false, false)?;
+
+
+            let mut future_cb: Rect =  self.get_collide_box();
+
+            let dir_target: Point = self.path.current_target().unwrap();
+            let dx = (dir_target.x - self.x as i32).signum();
+            let dy = (dir_target.y - self.y as i32).signum();
+            
+            println!("{}, {}", dx, dy);
+            future_cb.x = future_cb.x + dx * self.security_distance as i32 +  dx * self.speed as i32;
+            
+            future_cb.y = future_cb.y + dy * self.security_distance as i32 +  dy * self.speed as i32;
+
+
+            canvas.set_draw_color(Color::RGB(255, 0, 0));
+            canvas.draw_rect(future_cb)?;
+            canvas.set_draw_color(Color::RGB(0, 255, 0));
+            canvas.draw_rect(self.get_collide_box())?;
+            
         }else {
 
         }
@@ -171,7 +200,19 @@ impl<'a> Vehicule<'a>  {
 
 
     pub fn get_collide_box(&self) -> Rect {
-        Rect::new(self.x as i32, self.y as i32, self.vehicule_size.0, self.vehicule_size.1)
+       
+        let mut coll_size: (u32, u32) = self.vehicule_size; 
+        let mut coll_pos: (i32, i32) = (self.x as i32, self.y as i32); 
+
+        
+        if self.angle == 180.0 || self.angle == 0.0 { // si le vehicule est à l'horizontal je change la width et la height
+            coll_size.0 = self.vehicule_size.1;
+            coll_size.1 = self.vehicule_size.0;
+        }
+       
+      
+
+        Rect::new(coll_pos.0, coll_pos.1, coll_size.0, coll_size.1)
     }
     pub fn is_in_cross(&self, cross: Rect) -> bool { // Check si le vehicule est au centre de l'intersection
         self.get_collide_box().has_intersection(cross)

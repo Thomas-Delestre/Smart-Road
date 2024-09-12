@@ -27,7 +27,7 @@ impl <'a> Intersection<'a> {
             cross: Vec::new(),
             sprite,
             next_id: 1, // Commence à 1
-            speeds: vec![2, 5, 10],
+            speeds: vec![4, 8, 12],
             cross_perimeter:  Rect::new(250, 250, 300, 300),
         }
     }
@@ -92,10 +92,18 @@ impl <'a> Intersection<'a> {
         let mut cars_i = 0;
         
         while cars_i < self.cars.len() {
+            
             if self.cars[cars_i].is_in_cross(self.cross_perimeter) && self.cars[cars_i].path.dir != Direction::Right {
+
+                
                 // Si la voiture est dans l'intersection, la transférer à cross
-                let car = self.cars.remove(cars_i);
-                self.cross.push(car);
+                if self.cross.len() < 12 {
+                    let car = self.cars.remove(cars_i);
+                    self.cross.push(car);
+                }
+
+                
+                
                 print!("Switch");
             } else {
                 cars_i += 1;
@@ -106,8 +114,10 @@ impl <'a> Intersection<'a> {
         while cars_i < self.cross.len() {
             if !self.cross[cars_i].is_in_cross(self.cross_perimeter) && self.cross[cars_i].path.dir != Direction::Right {
                 // Si la voiture est dans l'intersection, la transférer à cross
-                let car = self.cross.remove(cars_i);
+                let mut car = self.cross.remove(cars_i);
+                car.out_cross = true;
                 self.cars.push(car);
+            
                 print!("Switch");
             } else {
                 cars_i += 1;
@@ -140,10 +150,16 @@ impl <'a> Intersection<'a> {
             
             for i in 0..self.cars.len() {
                 self.cars[i].speed = self.speeds[1];
-                if  self.cars[i].path.dir == Direction::Right {
+                if  self.cars[i].path.dir == Direction::Right || self.cars[i].out_cross {
                     self.cars[i].speed = self.speeds[2];
                 }
-                self.cars[i].step();
+                if !self.cars[i].check_col(&self.cross) &&  !self.cars[i].check_col(&self.cars) {
+                    if !self.cars[i].is_in_cross(self.cross_perimeter) || self.cars[i].path.dir == Direction::Right {
+                        self.cars[i].step();
+                    }
+                    
+                }
+                
                 if  self.cars[i].path.ended {
                     to_remove.push(i);
                 }
@@ -164,6 +180,7 @@ impl <'a> Intersection<'a> {
         }
         for car in self.cars.iter() {
             car.draw(canvas, 0.2, 0.2)?;
+            
         }
         for car in self.cross.iter() {
             car.draw(canvas, 0.2, 0.2)?;
@@ -187,7 +204,7 @@ impl <'a> Intersection<'a> {
             path.steps[0].x as i64,
             path.steps[0].y as i64,
             sprite,
-            5, // vitesse
+            self.speeds[1], // vitesse
             10, // distance de sécurité
             path,
             (gen * 3.0).round() as u16,
