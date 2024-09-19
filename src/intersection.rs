@@ -11,6 +11,7 @@ use sdl2::rect::Rect;
 
 pub struct Intersection<'a> {
     pub cars: Vec<Vehicule<'a>>,
+    pub finished_vehicles: Vec<Vehicule<'a>>,
     cross: Vec<Vehicule<'a>>,
     sprite: Sprite<'a>,
     next_id: u16, // Champ pour gérer les identifiants de véhicules
@@ -24,6 +25,7 @@ impl <'a> Intersection<'a> {
     pub fn new(sprite: Sprite<'a>) -> Intersection<'a> {
         Intersection {
             cars: Vec::new(),
+            finished_vehicles: Vec::new(),
             cross: Vec::new(),
             sprite,
             next_id: 1, // Commence à 1
@@ -60,15 +62,24 @@ impl <'a> Intersection<'a> {
                 }
                 
                 if prio {
-                    self.cross[i].speed = self.speeds[2];
+                    self.cross[i].speed = self.speeds[2]; 
+                    self.cross[i].update_speed(self.speeds[2]); 
+
                 }else{
                     
                     self.cross[i].speed = self.speeds[0];
+                    self.cross[i].update_speed(self.speeds[0]); 
                 }
                 
-                if !self.cross[i].check_col(&self.cross) {
+               // Crée une copie temporaire de `self.cross` à utiliser dans `check_col`
+                let cross_clone = self.cross.clone();
+
+                // Accède à `self.cross[i]` et effectue la vérification avec la copie
+                if !self.cross[i].check_col(&cross_clone) {
                     self.cross[i].step();
                 }
+
+                
                
 
             }
@@ -126,25 +137,36 @@ impl <'a> Intersection<'a> {
             }
         }
             
+        let mut to_remove = Vec::new();
+
             for i in 0..self.cars.len() {
                 self.cars[i].speed = self.speeds[1];
+                self.cars[i].update_speed(self.speeds[1]);
                 if  self.cars[i].path.dir == Direction::Right || self.cars[i].out_cross {
                     self.cars[i].speed = self.speeds[2];
+                    self.cars[i].update_speed(self.speeds[2]);
                 }
-                if !self.cars[i].check_col(&self.cross) &&  !self.cars[i].check_col(&self.cars) {
+               // Crée des copies temporaires de `self.cross` et `self.cars`
+                let cross_clone = self.cross.clone();
+                let cars_clone = self.cars.clone();
+
+                // Utilise les copies pour éviter les conflits d'emprunt
+                if !self.cars[i].check_col(&cross_clone) && !self.cars[i].check_col(&cars_clone) {
                     if !self.cars[i].is_in_cross(self.cross_perimeter) || self.cars[i].path.dir == Direction::Right {
                         self.cars[i].step();
                     }
-                    
                 }
-                
-                if  self.cars[i].path.ended {
+
+
+                if self.cars[i].path.ended {
+                    // Ajoutez le véhicule à finished_vehicles avant de le marquer pour suppression
+                    self.finished_vehicles.push(self.cars[i].clone());
                     to_remove.push(i);
                 }
             }
-
-            for (i, car)  in to_remove.iter().enumerate(){
-                self.cars.remove(car - i);
+            
+            for (i, car_index) in to_remove.iter().enumerate() {
+                self.cars.remove(*car_index - i);
             }
         // }
 

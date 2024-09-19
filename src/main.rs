@@ -45,14 +45,11 @@ fn main() -> Result<(), String> {
     let mut last_key_event_time = Instant::now();
 
     let mut show_stats = false; // Afficher les statistiques
-    let mut count_vehicles: i32 = 0;
     let mut last_up_time = Instant::now(); // Permets de définir un temps pour la dernière pression de touche
     let mut last_down_time = Instant::now();
     let mut last_right_time = Instant::now();
     let mut last_left_time = Instant::now();
     let mut last_r_time = Instant::now();
-    let mut min_speed = 0;
-    let mut max_speed = 0;
 
     
     'running: loop {
@@ -82,22 +79,18 @@ fn main() -> Result<(), String> {
                             Keycode::Up => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::South, VEHICULE_SIZE);
                                 // println!("Moving Up");
-                                count_vehicles += 1;
                             }
                             Keycode::Down => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::North, VEHICULE_SIZE);
                                 // println!("Moving Down");
-                                count_vehicles += 1;
                             }
                             Keycode::Left => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::East, VEHICULE_SIZE);
                                 // println!("Moving Left");
-                                count_vehicles += 1;
                             }
                             Keycode::Right => {
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, Start::West, VEHICULE_SIZE);
                                 // println!("Moving Right");
-                                count_vehicles += 1;
                             }
                             Keycode::R => {
                                 
@@ -112,7 +105,6 @@ fn main() -> Result<(), String> {
                                 };
 
                                 intersection.add_car(WINDOW_SIZE, &voitures_sprite, random_direction, VEHICULE_SIZE);
-                                count_vehicles += 1;
 
                             }
                             Keycode::L => {
@@ -130,39 +122,32 @@ fn main() -> Result<(), String> {
                 _ => {}
                 
             }
-        }    
+        }  
         
+       // Trouver les vitesses minimales et maximales parmi tous les véhicules terminés
+        let min_speed = intersection.finished_vehicles.iter().map(|v| v.min_speed).min().unwrap_or(0);
+        let max_speed = intersection.finished_vehicles.iter().map(|v| v.max_speed).max().unwrap_or(0);
+
+
+        let count_vehicles = intersection.finished_vehicles.len() as i32;
+
         // Affiche les statistiques uniquement si `show_stats` est vrai
         if show_stats {
             show_statistics_window(
-                &intersection.cars,
+                &intersection.finished_vehicles,
                 &sdl_context,
                 &mut event_pump,
                 count_vehicles,
                 min_speed,
                 max_speed,
             );
-            // Remets `show_stats` à `false` au lieu de quitter, ou ajoute une condition pour continuer à mettre à jour les vitesses
             break 'running; // ou mets une autre logique pour rester dans la boucle
         }
 
+
+
         // Update logic here
         intersection.step();
-        
-        min_speed = i32::MAX;
-        max_speed = 0;
-        // Mettre à jour min_speed et max_speed en parcourant les véhicules
-        for vehicle in &intersection.cars {
-            let speed_i32 = vehicle.speed as i32;
-            println!("Speed: {}", speed_i32);
-            if speed_i32 < min_speed  && speed_i32 > 0 {
-                min_speed = speed_i32;
-                println!("Min speed: {}", min_speed);
-            }
-            if speed_i32 > max_speed {
-                max_speed = speed_i32;
-            }
-        }
        
         canvas.clear(); 
         // Draw vehicles   
@@ -181,8 +166,8 @@ fn show_statistics_window(
     sdl_context: &sdl2::Sdl,
     event_pump: &mut sdl2::EventPump,
     count_vehicles: i32,
-    min_speed: i32,
-    max_speed: i32,
+    min_speed: u8,
+    max_speed: u8,
 ) {
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem
@@ -231,6 +216,7 @@ fn show_statistics_window(
         format!("Min velocity: {}", min_speed),
         format!("Max time: {}", max_time_str),
         format!("Min time: {}", min_time_str),
+        format!("Collisions: 0"),
         format!("Close Calls: {}", unsafe { CLOSE_CALL }),
     ];
     canvas.set_draw_color(Color::RGB(200, 200, 200));

@@ -57,7 +57,7 @@ impl Path {
     }
 }
 
-
+#[derive(Clone)]
 pub struct Vehicule<'a> {
     pub id: u16,
     pub frame_id: usize,
@@ -71,6 +71,8 @@ pub struct Vehicule<'a> {
     angle: f64,
     pub out_cross: bool,
     pub car_in: Instant,
+    pub min_speed: u8,
+    pub max_speed: u8,
     
 } 
 
@@ -88,11 +90,13 @@ impl<'a> Vehicule<'a>  {
             path, 
             angle: 0.0,
             out_cross: false,
-            car_in : Instant::now()
+            car_in : Instant::now(),
+            max_speed: speed,
+            min_speed: speed,
         }
     }
 
-    pub fn check_col(&self, sector: &Vec<Vehicule>) -> bool { // à réécrire prcq de la merde
+    pub fn check_col(&mut self, sector: &Vec<Vehicule>) -> bool { // à réécrire prcq de la merde
         
         let mut future_cb: Rect =  self.get_collide_box();
         let dir_target: Point = self.path.current_target().unwrap();
@@ -109,6 +113,7 @@ impl<'a> Vehicule<'a>  {
                 if obox.has_intersection(future_cb) {
                     // Si une collision est détectée, incrémente `CLOSE_CALL`
                     unsafe {
+                        self.min_speed = 0;
                         CLOSE_CALL += 1;
                     }
                     return true;
@@ -118,6 +123,16 @@ impl<'a> Vehicule<'a>  {
             
         }
         false
+    }
+
+    pub fn update_speed(&mut self, new_speed: u8) {
+        self.speed = new_speed;
+        if new_speed < self.min_speed {
+            self.min_speed = new_speed;
+        }
+        if new_speed > self.max_speed {
+            self.max_speed = new_speed;
+        }
     }
 
     pub fn car_time(&self) -> Duration {
