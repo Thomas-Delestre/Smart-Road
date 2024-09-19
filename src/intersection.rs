@@ -9,15 +9,15 @@ extern crate rand;
 use rand::Rng;
 use sdl2::rect::Rect;
 
-
 pub struct Intersection<'a> {
-    cars: Vec<Vehicule<'a>>,
+    pub cars: Vec<Vehicule<'a>>,
     cross: Vec<Vehicule<'a>>,
     sprite: Sprite<'a>,
     next_id: u16, // Champ pour gérer les identifiants de véhicules
     speeds: Vec<u8>,
     cross_perimeter: Rect,
 }
+
 
 impl <'a> Intersection<'a> {
 
@@ -63,28 +63,15 @@ impl <'a> Intersection<'a> {
                     self.cross[i].speed = self.speeds[2];
                 }else{
                     
-                    self.cross[i].speed = self.speeds[0]
+                    self.cross[i].speed = self.speeds[0];
                 }
+                
                 if !self.cross[i].check_col(&self.cross) {
                     self.cross[i].step();
                 }
                
 
             }
-
-            // Accélérer la première voiture dans l'intersection
-            // self.cross[0].speed = self.speeds[2];
-            // self.cross[0].step();
-        
-            // // Accélérer les voitures venant de la même direction
-            // for i in 1..self.cross.len() {
-            //     if self.cross[i].path.from == self.cross[0].path.from {
-            //         self.cross[i].speed = self.speeds[2];
-            //     } else {
-            //         self.cross[i].speed = self.speeds[0]; // Les autres voitures dans l'intersection ralentissent
-            //     }
-            //     self.cross[i].step();
-            // }
         }
 
         // Gérer les voitures en dehors de l'intersection
@@ -138,30 +125,6 @@ impl <'a> Intersection<'a> {
                 cars_i += 1;
             }
         }
-
-        // print!("{} len cross",self.cross.len());
-        // Gérer les voitures à l'extérieur de l'intersection
-        // for car in &mut self.cars {
-        //     if car.path.dir == Direction::Right {
-        //         car.speed = self.speeds[2]; // Vitesse normale pour les voitures allant à droite
-        //     }
-        // }
-
-        // Si l'intersection n'est pas vide
-        // if !self.cross.is_empty() {
-        //     if !self.cars.is_empty() {
-        //         // Gérer la première voiture en dehors de l'intersection
-        //         self.cars[0].speed = self.speeds[1];
-        //         self.cars[0].step();
-
-        //         // Ralentir les autres voitures en attente
-        //         for i in 1..self.cars.len() {
-        //             self.cars[i].speed = self.speeds[0];
-        //             self.cars[i].step();
-        //         }
-        //     }
-        // } else {
-            //toutes les voitures avancent normalement
             
             for i in 0..self.cars.len() {
                 self.cars[i].speed = self.speeds[1];

@@ -4,10 +4,13 @@ use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::{Point, Rect};
+use std::time::{Duration, Instant};
 
 use crate::sprites::Sprite;
 
-#[derive(PartialEq, Debug)]
+pub static mut CLOSE_CALL: usize = 0;
+
+#[derive(PartialEq, Debug, Clone)]
 pub enum Start {
     North,
     South,
@@ -15,14 +18,14 @@ pub enum Start {
     West,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Direction {
     Straigth,
     Left,
     Right,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Path {
     pub steps: Vec<Point>,
     pub current_index: usize,
@@ -66,7 +69,8 @@ pub struct Vehicule<'a> {
     security_distance: u32,
     pub path: Path,
     angle: f64,
-    pub out_cross: bool
+    pub out_cross: bool,
+    pub car_in: Instant,
     
 } 
 
@@ -83,14 +87,14 @@ impl<'a> Vehicule<'a>  {
             security_distance,
             path, 
             angle: 0.0,
-            out_cross: false
+            out_cross: false,
+            car_in : Instant::now()
         }
     }
 
     pub fn check_col(&self, sector: &Vec<Vehicule>) -> bool { // à réécrire prcq de la merde
         
         let mut future_cb: Rect =  self.get_collide_box();
-
         let dir_target: Point = self.path.current_target().unwrap();
         let dx = (dir_target.x - self.x as i32).signum();
         let dy = (dir_target.y - self.y as i32).signum();
@@ -98,29 +102,32 @@ impl<'a> Vehicule<'a>  {
         future_cb.x = future_cb.x + dx * self.security_distance as i32 +  dx * self.speed as i32;
         
         future_cb.y = future_cb.y + dy * self.security_distance as i32 +  dy * self.speed as i32;
-
-        println!("test {:?}",  dx * self.security_distance as i32);
-
+        // println!("test {:?}",  dx * self.security_distance as i32);
         for other in sector {
             if other.id != self.id {
                 let obox: Rect = other.get_collide_box();
-
                 if obox.has_intersection(future_cb) {
-                   
-                        return true;
-                    
+                    // Si une collision est détectée, incrémente `CLOSE_CALL`
+                    unsafe {
+                        CLOSE_CALL += 1;
+                    }
+                    return true;
                 }
+                
             }
             
         }
         false
+    }
+
+    pub fn car_time(&self) -> Duration {
+        self.car_in.elapsed()
     }
     
     pub fn check_security_distance(&self, other: &Vehicule) -> bool {
         let dx = self.x - other.x;
         let dy = self.y - other.y;
         let distance = ((dx * dx + dy * dy) as f64).sqrt();
-
         distance > self.security_distance as f64
     }
 
@@ -181,7 +188,7 @@ impl<'a> Vehicule<'a>  {
             let dx = (dir_target.x - self.x as i32).signum();
             let dy = (dir_target.y - self.y as i32).signum();
             
-            println!("{}, {}", dx, dy);
+            // println!("{}, {}", dx, dy);
             future_cb.x = future_cb.x + dx * self.security_distance as i32 +  dx * self.speed as i32;
             
             future_cb.y = future_cb.y + dy * self.security_distance as i32 +  dy * self.speed as i32;
