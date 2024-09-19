@@ -69,6 +69,7 @@ pub struct Vehicule<'a> {
     angle: f64,
     pub out_cross: bool,
     pub car_in: Instant,
+    pub total_time: Option<Duration>,
     pub min_speed: u8,
     pub max_speed: u8,
     
@@ -89,6 +90,7 @@ impl<'a> Vehicule<'a>  {
             angle: 0.0,
             out_cross: false,
             car_in : Instant::now(),
+            total_time: None,
             max_speed: speed,
             min_speed: speed,
         }
@@ -131,10 +133,6 @@ impl<'a> Vehicule<'a>  {
         if new_speed > self.max_speed {
             self.max_speed = new_speed;
         }
-    }
-
-    pub fn car_time(&self) -> Duration {
-        self.car_in.elapsed()
     }
     
     // pub fn check_security_distance(&self, other: &Vehicule) -> bool {

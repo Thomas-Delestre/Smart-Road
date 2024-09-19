@@ -5,7 +5,7 @@ use sdl2::keyboard::Keycode;
 use std::time::Duration;
 use std::time::Instant;
 use rand::Rng;
-use vehicules::{Start, CLOSE_CALL, Vehicule};
+use vehicules::{Start, CLOSE_CALL};
 use intersection::Intersection;
 use sprites::Sprite;
 
@@ -62,9 +62,6 @@ fn main() -> Result<(), String> {
                         show_stats = true;
                     }
                 }
-                // Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                //     break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
-                // }
                 Event::KeyDown { keycode: Some(keycode), .. } => {
                     if last_key_event_time.elapsed() >= Duration::from_millis(300) {
                         last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps
@@ -89,7 +86,6 @@ fn main() -> Result<(), String> {
                             }
                             Keycode::R => {
                                 
-                                // println!("R for RANDOM");
                                 // Générer un entier aléatoire entre 0 et 3
                                 let mut rng = rand::thread_rng();
                                 let random_direction = match rng.gen_range(0, 4) {
@@ -123,18 +119,35 @@ fn main() -> Result<(), String> {
         let min_speed = intersection.finished_vehicles.iter().map(|v| v.min_speed).min().unwrap_or(0);
         let max_speed = intersection.finished_vehicles.iter().map(|v| v.max_speed).max().unwrap_or(0);
 
+       // Calculer le temps minimum et maximum des véhicules qui ont terminé
+        let min_time = intersection
+        .finished_vehicles
+        .iter()
+        .filter_map(|v| v.total_time) // Assure que seuls les temps définis sont pris en compte
+        .min()
+        .unwrap_or(Duration::ZERO);
+
+        let max_time = intersection
+        .finished_vehicles
+        .iter()
+        .filter_map(|v| v.total_time) // Assure que seuls les temps définis sont pris en compte
+        .max()
+        .unwrap_or(Duration::ZERO);
+
 
         let count_vehicles = intersection.finished_vehicles.len() as i32;
 
         // Affiche les statistiques uniquement si `show_stats` est vrai
         if show_stats {
             show_statistics_window(
-                &intersection.finished_vehicles,
+                //&intersection.finished_vehicles,
                 &sdl_context,
                 &mut event_pump,
                 count_vehicles,
                 min_speed,
                 max_speed,
+                min_time,
+                max_time,
             );
             break 'running; // ou mets une autre logique pour rester dans la boucle
         }
@@ -157,12 +170,13 @@ fn main() -> Result<(), String> {
 }
 
 fn show_statistics_window(
-    vehicles: &Vec<Vehicule>,
     sdl_context: &sdl2::Sdl,
     event_pump: &mut sdl2::EventPump,
     count_vehicles: i32,
     min_speed: u8,
     max_speed: u8,
+    min_time: Duration,
+    max_time: Duration,
 ) {
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem
@@ -180,19 +194,7 @@ fn show_statistics_window(
             font_size,
         )
         .unwrap();
-    let mut max_time = Duration::ZERO;
-    let mut min_time = Duration::MAX;
-    // Iterate over the vehicles to find the maximum and minimum car time
-    for vehicle in vehicles {
-        let car_time = vehicle.car_time();
-        // Update max_time and min_time
-        if car_time > max_time {
-            max_time = car_time;
-        }
-        if car_time < min_time {
-            min_time = car_time;
-        }
-    }
+    
     // Convert max_time to string
     let max_time_str = if max_time == Duration::ZERO {
         "N/A".to_string()

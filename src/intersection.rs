@@ -148,16 +148,18 @@ impl <'a> Intersection<'a> {
 
 
                 if self.cars[i].path.ended {
-                    // Ajoutez le véhicule à finished_vehicles avant de le marquer pour suppression
+                    // Met à jour le temps total que la voiture a pris pour traverser l'intersection
+                    self.cars[i].total_time = Some(self.cars[i].car_in.elapsed());
+                
+                    // Ajoute le véhicule à finished_vehicles avant de le marquer pour suppression
                     self.finished_vehicles.push(self.cars[i].clone());
                     to_remove.push(i);
-                }
+                }    
             }
             
             for (i, car_index) in to_remove.iter().enumerate() {
                 self.cars.remove(*car_index - i);
             }
-        // }
 
         // Supprimer les voitures qui ont atteint leur destination
      
