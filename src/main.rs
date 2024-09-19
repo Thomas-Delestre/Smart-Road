@@ -45,11 +45,6 @@ fn main() -> Result<(), String> {
     let mut last_key_event_time = Instant::now();
 
     let mut show_stats = false; // Afficher les statistiques
-    let mut last_up_time = Instant::now(); // Permets de définir un temps pour la dernière pression de touche
-    let mut last_down_time = Instant::now();
-    let mut last_right_time = Instant::now();
-    let mut last_left_time = Instant::now();
-    let mut last_r_time = Instant::now();
 
     
     'running: loop {
@@ -67,9 +62,9 @@ fn main() -> Result<(), String> {
                         show_stats = true;
                     }
                 }
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
-                }
+                // Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                //     break 'running; // Quitter la boucle lorsque la touche Échap est enfoncée
+                // }
                 Event::KeyDown { keycode: Some(keycode), .. } => {
                     if last_key_event_time.elapsed() >= Duration::from_millis(300) {
                         last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps

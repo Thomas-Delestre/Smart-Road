@@ -1,5 +1,3 @@
-use std::future;
-
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
@@ -139,12 +137,12 @@ impl<'a> Vehicule<'a>  {
         self.car_in.elapsed()
     }
     
-    pub fn check_security_distance(&self, other: &Vehicule) -> bool {
-        let dx = self.x - other.x;
-        let dy = self.y - other.y;
-        let distance = ((dx * dx + dy * dy) as f64).sqrt();
-        distance > self.security_distance as f64
-    }
+    // pub fn check_security_distance(&self, other: &Vehicule) -> bool {
+    //     let dx = self.x - other.x;
+    //     let dy = self.y - other.y;
+    //     let distance = ((dx * dx + dy * dy) as f64).sqrt();
+    //     distance > self.security_distance as f64
+    // }
 
     pub fn step(&mut self) { // Logique de la voiture frame par frame
     
@@ -224,7 +222,7 @@ impl<'a> Vehicule<'a>  {
     pub fn get_collide_box(&self) -> Rect {
        
         let mut coll_size: (u32, u32) = self.vehicule_size; 
-        let mut coll_pos: (i32, i32) = (self.x as i32   , self.y as i32); 
+        let coll_pos: (i32, i32) = (self.x as i32   , self.y as i32); 
 
         
         if self.angle == 180.0 || self.angle == 0.0 { // si le vehicule est à l'horizontal je change la width et la height
@@ -240,17 +238,17 @@ impl<'a> Vehicule<'a>  {
         self.get_collide_box().has_intersection(cross)
     } 
 
-    pub fn distance_to_destiation(&self) -> f64 {
-        // Récupérer le point de destination actuel (le dernier point du chemin)
+    // pub fn distance_to_destiation(&self) -> f64 {
+    //     // Récupérer le point de destination actuel (le dernier point du chemin)
      
-            // Calculer la distance entre la position actuelle et la destination
+    //         // Calculer la distance entre la position actuelle et la destination
             
-            let dx = (self.path.steps[self.path.steps.len() - 1].x - self.x as i32) as f64;
-            let dy = (self.path.steps[self.path.steps.len() - 1].y - self.y as i32) as f64;
-            let distance = (dx * dx + dy * dy).sqrt();
-            distance
+    //         let dx = (self.path.steps[self.path.steps.len() - 1].x - self.x as i32) as f64;
+    //         let dy = (self.path.steps[self.path.steps.len() - 1].y - self.y as i32) as f64;
+    //         let distance = (dx * dx + dy * dy).sqrt();
+    //         distance
     
-    }
+    // }
 
 }
 

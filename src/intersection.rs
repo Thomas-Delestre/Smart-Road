@@ -1,10 +1,7 @@
-use std::collections::HashMap;
-use std::fs::DirEntry;
-
-use crate::vehicules::{self, generate_path, Direction, Start, Vehicule};
+use crate::vehicules::{ generate_path, Direction, Start, Vehicule};
 use crate::sprites::{Sprite};
-use sdl2::video::{WindowContext, Window};
-use sdl2::render::{Canvas, Texture, TextureCreator};
+use sdl2::video::Window;
+use sdl2::render::Canvas;
 extern crate rand;
 use rand::Rng;
 use sdl2::rect::Rect;
@@ -33,17 +30,9 @@ impl <'a> Intersection<'a> {
             cross_perimeter:  Rect::new(250, 250, 300, 300),
         }
     }
-
-    pub fn cross_perimeter(&self) -> Rect {
-        // Définir et retourner la zone de détection
-        Rect::new(250, 250, 300, 300)
-    }
-
-    
-
     pub fn step(&mut self) {
 
-        let mut to_remove: Vec<usize> = Vec::new();
+        // let mut to_remove: Vec<usize> = Vec::new();
 
 
         // Met à jour la position des voitures déjà dans l'intersection
