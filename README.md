@@ -107,9 +107,9 @@ cargo run
 
 ## Screenshots
 
-    <p align="center">
-        <img src="screenshot/running_test" alt="full_scene_1">
-    </p>
+<p align="center">
+    <img src="screenshot/running_test.png" alt="full_scene_1">
+</p>
 
 ## Running Tests
 
