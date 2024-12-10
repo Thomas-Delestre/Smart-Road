@@ -63,7 +63,7 @@ fn main() -> Result<(), String> {
                     }
                 }
                 Event::KeyDown { keycode: Some(keycode), .. } => {
-                    if last_key_event_time.elapsed() >= Duration::from_millis(300) {
+                    if last_key_event_time.elapsed() >= Duration::from_millis(250) {
                         last_key_event_time = Instant::now(); // Met à jour le dernier événement de temps
                         
                         // println!("Key down: {:?}", keycode);

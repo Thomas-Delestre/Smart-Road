@@ -103,10 +103,6 @@ impl <'a> Intersection<'a> {
                 }else{
                     cars_i += 1;
                 }
-
-                
-                
-                print!("Switch");
             } else {
                 cars_i += 1;
             }
@@ -119,8 +115,6 @@ impl <'a> Intersection<'a> {
                 let mut car = self.cross.remove(cars_i);
                 car.out_cross = true;
                 self.cars.push(car);
-            
-                print!("Switch");
             } else {
                 cars_i += 1;
             }
